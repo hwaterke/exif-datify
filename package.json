@@ -1,7 +1,7 @@
 {
   "name": "exif-datify",
   "description": "CLI to rename files with date and time information from Exif data",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Harold Waterkeyn",
   "license": "MIT",
   "repository": "hwaterke/exif-datify",
