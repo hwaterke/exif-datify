@@ -9,6 +9,7 @@ CLI to rename files with date and time information from Exif data
 
 <!-- toc -->
 
+- [exif-datify](#exif-datify)
 - [Usage](#usage)
 - [Commands](#commands)
 <!-- tocstop -->
