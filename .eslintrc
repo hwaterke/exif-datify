@@ -1,5 +1,5 @@
 {
-  "extends": ["oclif", "oclif-typescript"],
+  "extends": ["eslint:recommended", "oclif", "oclif-typescript", "prettier"],
   "rules": {
     "no-trailing-spaces": "off",
     "indent": "off",

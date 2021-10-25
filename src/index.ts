@@ -1,13 +1,9 @@
 import {Command, flags} from '@oclif/command'
 import * as fs from 'fs'
 import * as nodePath from 'path'
-import {
-  extractDateTimeFromExif,
-  extractExifMetadata,
-  isDirectory,
-} from './utils'
-import {DateTime} from 'luxon'
+import {isDirectory} from './utils'
 import * as chalk from 'chalk'
+import {DatifyService} from './DatifyService'
 
 class ExifDatify extends Command {
   static description =
@@ -20,6 +16,11 @@ class ExifDatify extends Command {
       char: 'd',
       description: 'show how files would be renamed without doing it',
     }),
+    prefix: flags.string({
+      char: 'p',
+      description: 'Format used for the prefix, see luxon documentation',
+      default: 'yyyy-MM-dd_HH-mm-ss_',
+    }),
     extensions: flags.string({
       char: 'e',
       description:
@@ -29,52 +30,18 @@ class ExifDatify extends Command {
 
   static args = [{name: 'path', required: true}]
 
-  getFilePrefix(date: DateTime) {
-    return `${date.toFormat('yyyy-MM-dd_HH-mm-ss_')}`
-  }
-
-  async prefixFileWithDate(path: string, date: DateTime, dryRun = false) {
-    const current = nodePath.resolve(path)
-    const dirname = nodePath.dirname(current)
-    const prefix = this.getFilePrefix(date)
-
-    // Ignore the file if it is already prefixed
-    if (nodePath.basename(path).startsWith(prefix)) {
-      this.log(chalk.yellow(`${current} already prefixed`))
-      return
-    }
-
-    const prefixed = nodePath.join(
-      dirname,
-      `${prefix}${nodePath.basename(path)}`
-    )
-
-    this.log(chalk.blue(current))
-    this.log(chalk.green(prefixed))
-
-    if (!dryRun) {
-      await fs.promises.rename(current, prefixed)
-    }
-  }
-
-  async processFile(
-    path: string,
-    options: {
-      dryRun: boolean
-    }
-  ) {
-    const metadata = await extractExifMetadata(path)
-    const when = extractDateTimeFromExif(metadata)
-    if (when !== null) {
-      await this.prefixFileWithDate(path, when!, options.dryRun)
-    }
-  }
-
   async run() {
     const {
       args: {path},
       flags,
     } = this.parse(ExifDatify)
+
+    console.log(flags)
+
+    const service = new DatifyService({
+      dryRun: flags.dryRun,
+      prefix: flags.prefix,
+    })
 
     if (!fs.existsSync(path)) {
       this.error(`${path} does not exist.`)
@@ -95,14 +62,14 @@ class ExifDatify extends Command {
       for (const entry of filesToProcess) {
         try {
           this.log(`${index}/${filesToProcess.length} - ${entry}`)
-          await this.processFile(entry, flags)
+          await service.processFile(entry)
         } catch (error) {
           this.log(chalk.red(`Error while processing file: ${entry}: ${error}`))
         }
         index++
       }
     } else {
-      await this.processFile(path, flags)
+      await service.processFile(path)
     }
   }
 }

@@ -8,14 +8,16 @@ CLI to rename files with date and time information from Exif data
 [![License](https://img.shields.io/npm/l/exif-datify.svg)](https://github.com/hwaterke/exif-datify/blob/master/package.json)
 
 <!-- toc -->
-* [exif-datify](#exif-datify)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [exif-datify](#exif-datify)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g exif-datify
 $ exif-datify COMMAND
@@ -27,6 +29,7 @@ USAGE
   $ exif-datify COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands

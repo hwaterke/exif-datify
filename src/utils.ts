@@ -32,7 +32,7 @@ export const ensureFile = async (path: string): Promise<void> => {
   if (await isDirectory(path)) {
     throw new Error(`${path} is a directory and not a file`)
   }
-  await FS.access(path, constants.R_OK)
+  await FS.access(path, constants.F_OK)
 }
 
 /**
