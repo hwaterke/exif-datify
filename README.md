@@ -21,7 +21,7 @@ $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (-v|--version|version)
-exif-datify/0.0.2 darwin-x64 node-v16.7.0
+exif-datify/0.0.3 darwin-x64 node-v16.7.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
