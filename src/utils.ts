@@ -42,7 +42,7 @@ export const extractExifMetadata = async (
   path: string
 ): Promise<Record<string, string>> => {
   await ensureFile(path)
-  const {stdout} = await exec(`exiftool -G0:1 -json ${path}`)
+  const {stdout} = await exec(`exiftool -G0:1 -json "${path}"`)
   return JSON.parse(stdout)[0]
 }
 
