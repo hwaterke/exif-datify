@@ -26,6 +26,10 @@ class ExifDatify extends Command {
       description:
         'which file extensions to process (comma separated) e.g. (mov,mp4,jpg)',
     }),
+    skipBasename: flags.boolean({
+      char: 'b',
+      description: 'skip the basename of the file',
+    }),
   }
 
   static args = [{name: 'path', required: true}]
@@ -41,6 +45,7 @@ class ExifDatify extends Command {
     const service = new DatifyService({
       dryRun: flags.dryRun,
       prefix: flags.prefix,
+      skipBasename: flags.skipBasename,
     })
 
     if (!fs.existsSync(path)) {

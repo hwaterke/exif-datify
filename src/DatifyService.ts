@@ -8,6 +8,7 @@ import {access, rename} from 'fs/promises'
 export type DatifyConfig = {
   prefix: string
   dryRun: boolean
+  skipBasename: boolean
 }
 
 export class DatifyService {
@@ -22,9 +23,28 @@ export class DatifyService {
     }
   }
 
+  private async getPrefixedFilename(path: string, prefix: string) {
+    const pathData = nodePath.parse(path)
+    let counter = 0
+
+    while (true) {
+      const newPath = nodePath.join(
+        pathData.dir,
+        `${prefix}${this.config.skipBasename ? '' : pathData.name}${
+          counter > 0 ? counter : ''
+        }${pathData.ext}`
+      )
+      try {
+        await access(newPath, constants.F_OK)
+        counter += 1
+      } catch (e) {
+        return newPath
+      }
+    }
+  }
+
   private async prefixFileWithDate(path: string, date: DateTime) {
     const current = nodePath.resolve(path)
-    const dirname = nodePath.dirname(current)
     const prefix = date.toFormat(this.config.prefix)
 
     // Ignore the file if it is already prefixed
@@ -33,24 +53,7 @@ export class DatifyService {
       return
     }
 
-    let prefixed = nodePath.join(dirname, `${prefix}${nodePath.basename(path)}`)
-    let counter = 1
-
-    // Does the file already exist?
-    while (true) {
-      try {
-        await access(prefixed, constants.F_OK)
-
-        counter++
-        const parsedPath = nodePath.parse(path)
-        prefixed = nodePath.join(
-          dirname,
-          `${prefix}${parsedPath.name}${counter}${parsedPath.ext}`
-        )
-      } catch (err) {
-        break
-      }
-    }
+    const prefixed = await this.getPrefixedFilename(current, prefix)
 
     console.log(chalk.blue(current))
     console.log(chalk.green(prefixed))
