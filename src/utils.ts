@@ -70,7 +70,7 @@ export const extractDateTimeFromExif = (
   }
 
   // CreateDate is not as good because it is stored in UTC (per specification).
-  // Some company still store local date time despite the spec e.g. GoPro
+  // Some companies still store local date time despite the spec e.g. GoPro
   if (metadata[EXIF_TAG_QUICKTIME_CREATE_DATE]) {
     if (metadata[EXIF_TAG_GOPRO_MODEL]) {
       const date = DateTime.fromFormat(
