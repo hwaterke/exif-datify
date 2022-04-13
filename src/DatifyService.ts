@@ -1,9 +1,9 @@
 import {extractDateTimeFromExif, extractExifMetadata} from './utils'
 import {DateTime} from 'luxon'
-import * as nodePath from 'path'
+import * as nodePath from 'node:path'
 import * as chalk from 'chalk'
-import {constants} from 'fs'
-import {access, rename} from 'fs/promises'
+import {constants} from 'node:fs'
+import {access, rename} from 'node:fs/promises'
 
 export type DatifyConfig = {
   prefix: string
@@ -37,7 +37,7 @@ export class DatifyService {
       try {
         await access(newPath, constants.F_OK)
         counter += 1
-      } catch (e) {
+      } catch {
         return newPath
       }
     }

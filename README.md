@@ -8,29 +8,80 @@ CLI to rename files with date and time information from Exif data
 [![License](https://img.shields.io/npm/l/exif-datify.svg)](https://github.com/hwaterke/exif-datify/blob/master/package.json)
 
 <!-- toc -->
-* [exif-datify](#exif-datify)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [exif-datify](#exif-datify)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
-$ exif-datify (-v|--version|version)
-exif-datify/0.0.3 darwin-x64 node-v16.7.0
+$ exif-datify (--version)
+exif-datify/0.0.4 darwin-x64 node-v17.3.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
+
+- [`exif-datify help [COMMAND]`](#exif-datify-help-command)
+- [`exif-datify rename PATH`](#exif-datify-rename-path)
+
+## `exif-datify help [COMMAND]`
+
+Display help for exif-datify.
+
+```
+USAGE
+  $ exif-datify help [COMMAND] [-n]
+
+ARGUMENTS
+  COMMAND  Command to show help for.
+
+FLAGS
+  -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for exif-datify.
+```
+
+_See code:
+[@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+
+## `exif-datify rename PATH`
+
+rename files with date and time information from Exif data
+
+```
+USAGE
+  $ exif-datify rename [PATH] [-d] [-p <value>] [-e <value>] [-b]
+
+ARGUMENTS
+  PATH  path to file or directory to process
+
+FLAGS
+  -b, --skipBasename        skip the basename of the file
+  -d, --dryRun              show how files would be renamed without doing it
+  -e, --extensions=<value>  which file extensions to process (comma separated) e.g. (mov,mp4,jpg)
+  -p, --prefix=<value>      [default: yyyy-MM-dd_HH-mm-ss_] Format used for the prefix, see luxon documentation
+
+DESCRIPTION
+  rename files with date and time information from Exif data
+```
+
+_See code:
+[dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.4/dist/commands/rename.ts)_
 
 <!-- commandsstop -->

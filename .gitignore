@@ -8,3 +8,4 @@ node_modules
 .idea
 .DS_Store
 test-files
+oclif.manifest.json
