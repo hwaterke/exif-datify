@@ -54,7 +54,8 @@ const EXIF_TAG_GOPRO_MODEL = 'QuickTime:GoPro:Model'
  * Find the shooting date from the exif metadata provided
  */
 export const extractDateTimeFromExif = (
-  metadata: Record<string, string>
+  metadata: Record<string, string>,
+  timeZone?: string
 ): DateTime | null => {
   // DateTimeOriginal is the ideal tag to extract from.
   // It is the local date where the media was taken (in terms of TZ)
@@ -86,10 +87,10 @@ export const extractDateTimeFromExif = (
         metadata[EXIF_TAG_QUICKTIME_CREATE_DATE],
         EXIF_DATE_TIME_FORMAT,
         {zone: 'utc'}
-      ).toLocal()
+      )
 
       if (date.isValid) {
-        return date
+        return timeZone ? date.setZone(timeZone) : date.toLocal()
       }
     }
   }

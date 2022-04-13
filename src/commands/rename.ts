@@ -24,6 +24,11 @@ export default class ExifDatify extends Command {
       description:
         'which file extensions to process (comma separated) e.g. (mov,mp4,jpg)',
     }),
+    zone: Flags.string({
+      char: 'z',
+      description:
+        'which IANA time zone to use for the date and time information found in UTC (default is local time) e.g. Europe/Brussels',
+    }),
     skipBasename: Flags.boolean({
       char: 'b',
       description: 'skip the basename of the file',
@@ -50,6 +55,7 @@ export default class ExifDatify extends Command {
       dryRun: flags.dryRun,
       prefix: flags.prefix,
       skipBasename: flags.skipBasename,
+      timeZone: flags.zone,
     })
 
     if (!fs.existsSync(path)) {
