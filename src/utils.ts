@@ -1,6 +1,6 @@
-import {promises as FS, constants} from 'fs'
-import {exec as callbackExec} from 'child_process'
-import {promisify} from 'util'
+import {promises as FS, constants} from 'node:fs'
+import {exec as callbackExec} from 'node:child_process'
+import {promisify} from 'node:util'
 import {DateTime} from 'luxon'
 
 const exec = promisify(callbackExec)
@@ -84,10 +84,9 @@ export const extractDateTimeFromExif = (
       // Assuming UTC
       const date = DateTime.fromFormat(
         metadata[EXIF_TAG_QUICKTIME_CREATE_DATE],
-        EXIF_DATE_TIME_FORMAT
-      )
-        .setZone('utc', {keepLocalTime: true})
-        .toLocal()
+        EXIF_DATE_TIME_FORMAT,
+        {zone: 'utc'}
+      ).toLocal()
 
       if (date.isValid) {
         return date

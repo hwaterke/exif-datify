@@ -1,9 +1,12 @@
 {
-  "extends": ["eslint:recommended", "oclif", "oclif-typescript", "prettier"],
+  "extends": ["oclif", "oclif-typescript", "prettier"],
   "rules": {
-    "no-trailing-spaces": "off",
-    "indent": "off",
     "no-await-in-loop": "off",
-    "@typescript-eslint/member-delimiter-style": "off"
+    "no-constant-condition": "off",
+    "valid-jsdoc": "off",
+    "padding-line-between-statements": "off",
+    "unicorn/import-style": "off",
+    "no-useless-constructor": "off",
+    "unicorn/filename-case": "off"
   }
 }
