@@ -10,6 +10,7 @@ export type DatifyConfig = {
   dryRun: boolean
   skipBasename: boolean
   timeZone?: string
+  fileTimeFallback: boolean
 }
 
 export class DatifyService {
@@ -17,7 +18,11 @@ export class DatifyService {
 
   async processFile(path: string) {
     const metadata = await extractExifMetadata(path)
-    const when = extractDateTimeFromExif(metadata, this.config.timeZone)
+    const when = extractDateTimeFromExif({
+      metadata: metadata,
+      timeZone: this.config.timeZone,
+      fileTimeFallback: this.config.fileTimeFallback,
+    })
 
     if (when !== null) {
       await this.prefixFileWithDate(path, when)

@@ -6,6 +6,7 @@ import {DateTime} from 'luxon'
 const exec = promisify(callbackExec)
 
 export const EXIF_DATE_TIME_FORMAT = 'yyyyy:MM:dd HH:mm:ss'
+export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyyy:MM:dd HH:mm:ssZZ'
 
 /**
  * Returns true if the provided path is a directory
@@ -49,14 +50,20 @@ export const extractExifMetadata = async (
 const EXIF_TAG_DATE_TIME_ORIGINAL = 'EXIF:ExifIFD:DateTimeOriginal'
 const EXIF_TAG_QUICKTIME_CREATE_DATE = 'QuickTime:CreateDate'
 const EXIF_TAG_GOPRO_MODEL = 'QuickTime:GoPro:Model'
+const EXIF_TAG_FILE_MODIFICATION_DATE = 'File:System:FileModifyDate'
 
 /**
  * Find the shooting date from the exif metadata provided
  */
-export const extractDateTimeFromExif = (
-  metadata: Record<string, string>,
+export const extractDateTimeFromExif = ({
+  metadata,
+  timeZone,
+  fileTimeFallback,
+}: {
+  metadata: Record<string, string>
   timeZone?: string
-): DateTime | null => {
+  fileTimeFallback: boolean
+}): DateTime | null => {
   // DateTimeOriginal is the ideal tag to extract from.
   // It is the local date where the media was taken (in terms of TZ)
   if (metadata[EXIF_TAG_DATE_TIME_ORIGINAL]) {
@@ -92,6 +99,17 @@ export const extractDateTimeFromExif = (
       if (date.isValid) {
         return timeZone ? date.setZone(timeZone) : date.toLocal()
       }
+    }
+  }
+
+  if (fileTimeFallback) {
+    const date = DateTime.fromFormat(
+      metadata[EXIF_TAG_FILE_MODIFICATION_DATE],
+      EXIF_DATE_TIME_FORMAT_WITH_TZ
+    )
+
+    if (date.isValid) {
+      return date
     }
   }
 

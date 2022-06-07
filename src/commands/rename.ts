@@ -33,6 +33,12 @@ export default class ExifDatify extends Command {
       char: 'b',
       description: 'skip the basename of the file',
     }),
+    time: Flags.boolean({
+      char: 't',
+      description:
+        'fallback to the time of the file when no date and time is found',
+      default: false,
+    }),
   }
 
   static args = [
@@ -49,13 +55,12 @@ export default class ExifDatify extends Command {
       flags,
     } = await this.parse(ExifDatify)
 
-    console.log(flags)
-
     const service = new DatifyService({
       dryRun: flags.dryRun,
       prefix: flags.prefix,
       skipBasename: flags.skipBasename,
       timeZone: flags.zone,
+      fileTimeFallback: flags.time,
     })
 
     if (!fs.existsSync(path)) {
