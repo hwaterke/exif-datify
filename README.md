@@ -23,7 +23,7 @@ $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (--version)
-exif-datify/0.0.4 darwin-x64 node-v17.3.0
+exif-datify/0.0.5 darwin-x64 node-v17.3.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
@@ -84,6 +84,6 @@ DESCRIPTION
 ```
 
 _See code:
-[dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.4/dist/commands/rename.ts)_
+[dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.5/dist/commands/rename.ts)_
 
 <!-- commandsstop -->
