@@ -39,6 +39,11 @@ export default class ExifDatify extends Command {
         'fallback to the time of the file when no date and time is found',
       default: false,
     }),
+    srt: Flags.boolean({
+      description:
+        'rename .srt files with the same date as the video they share their name with.',
+      default: false,
+    }),
   }
 
   static args = [
@@ -61,6 +66,7 @@ export default class ExifDatify extends Command {
       skipBasename: flags.skipBasename,
       timeZone: flags.zone,
       fileTimeFallback: flags.time,
+      srt: flags.srt,
     })
 
     if (!fs.existsSync(path)) {

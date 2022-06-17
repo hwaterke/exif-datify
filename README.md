@@ -66,7 +66,7 @@ rename files with date and time information from Exif data
 
 ```
 USAGE
-  $ exif-datify rename [PATH] [-d] [-p <value>] [-e <value>] [-z <value>] [-b]
+  $ exif-datify rename [PATH] [-d] [-p <value>] [-e <value>] [-z <value>] [-b] [-t] [--srt]
 
 ARGUMENTS
   PATH  path to file or directory to process
@@ -76,8 +76,10 @@ FLAGS
   -d, --dryRun              show how files would be renamed without doing it
   -e, --extensions=<value>  which file extensions to process (comma separated) e.g. (mov,mp4,jpg)
   -p, --prefix=<value>      [default: yyyy-MM-dd_HH-mm-ss_] Format used for the prefix, see luxon documentation
+  -t, --time                fallback to the time of the file when no date and time is found
   -z, --zone=<value>        which IANA time zone to use for the date and time information found in UTC (default is local
                             time) e.g. Europe/Brussels
+  --srt                     rename .srt files with the same date as the video they share their name with.
 
 DESCRIPTION
   rename files with date and time information from Exif data
