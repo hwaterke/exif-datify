@@ -8,36 +8,32 @@ CLI to rename files with date and time information from Exif data
 [![License](https://img.shields.io/npm/l/exif-datify.svg)](https://github.com/hwaterke/exif-datify/blob/master/package.json)
 
 <!-- toc -->
-
-- [exif-datify](#exif-datify)
-- [Usage](#usage)
-- [Commands](#commands)
+* [exif-datify](#exif-datify)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (--version)
-exif-datify/0.0.5 darwin-x64 node-v17.3.0
+exif-datify/0.0.6 darwin-x64 node-v17.3.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`exif-datify help [COMMAND]`](#exif-datify-help-command)
-- [`exif-datify rename PATH`](#exif-datify-rename-path)
+* [`exif-datify help [COMMAND]`](#exif-datify-help-command)
+* [`exif-datify rename PATH`](#exif-datify-rename-path)
 
 ## `exif-datify help [COMMAND]`
 
@@ -57,8 +53,7 @@ DESCRIPTION
   Display help for exif-datify.
 ```
 
-_See code:
-[@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
 ## `exif-datify rename PATH`
 
@@ -85,7 +80,5 @@ DESCRIPTION
   rename files with date and time information from Exif data
 ```
 
-_See code:
-[dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.5/dist/commands/rename.ts)_
-
+_See code: [dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.6/dist/commands/rename.ts)_
 <!-- commandsstop -->
