@@ -41,7 +41,7 @@
     "@oclif/core": "^1.9.3",
     "@oclif/plugin-help": "^5",
     "chalk": "^4.1.2",
-    "luxon": "^2.4.0"
+    "luxon": "^3.0.1"
   },
   "devDependencies": {
     "@types/luxon": "^2.3.2",
