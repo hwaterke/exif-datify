@@ -1,12 +1,19 @@
-import {promises as FS, constants} from 'node:fs'
-import {exec as callbackExec} from 'node:child_process'
-import {promisify} from 'node:util'
+import fs, {constants, promises as FS} from 'node:fs'
 import {DateTime} from 'luxon'
+import nodePath from 'node:path'
+import chalk from 'chalk'
 
-const exec = promisify(callbackExec)
+export const TZ_OFFSET_REGEX = /[+-]\d{2}:\d{2}/
+export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
+export const EXIF_DATE_TIME_WITH_TZ_REGEX =
+  /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/
 
-export const EXIF_DATE_TIME_FORMAT = 'yyyyy:MM:dd HH:mm:ss'
-export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyyy:MM:dd HH:mm:ssZZ'
+export const EXIF_DATE_TIME_FORMAT = 'yyyy:MM:dd HH:mm:ss'
+export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyy:MM:dd HH:mm:ssZZ'
+export const EXIF_APPLE_LIVE_PHOTO_UUID_PHOTO =
+  'MakerNotes:Apple:MediaGroupUUID'
+export const EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO =
+  'QuickTime:Keys:ContentIdentifier'
 
 /**
  * Returns true if the provided path is a directory
@@ -36,21 +43,76 @@ export const ensureFile = async (path: string): Promise<void> => {
   await FS.access(path, constants.F_OK)
 }
 
-/**
- * Returns the exif metadata stored on the file provided
- */
-export const extractExifMetadata = async (
+export const forEachFile = async ({
+  path,
+  log,
+  callback,
+  videosLast,
+}: {
   path: string
-): Promise<Record<string, string>> => {
-  await ensureFile(path)
-  const {stdout} = await exec(`exiftool -G0:1 -json "${path}"`)
-  return JSON.parse(stdout)[0]
+  callback: (file: string) => Promise<void>
+  log: (message: string) => void
+  videosLast: boolean
+}) => {
+  if (!fs.existsSync(path)) {
+    throw new Error(`${path} does not exist.`)
+  }
+
+  if (await isDirectory(path)) {
+    const filesToProcess = []
+
+    for await (const d of await fs.promises.opendir(path)) {
+      const entry = nodePath.join(path, d.name)
+      if (!d.isDirectory()) {
+        filesToProcess.push(entry)
+      }
+    }
+
+    // Put videos last if necessary
+    if (videosLast) {
+      const isVideo = (extension: string) =>
+        extension === '.mp4' || extension === '.mov'
+
+      filesToProcess.sort((a, b) => {
+        const extA = nodePath.extname(a).toLowerCase()
+        const extB = nodePath.extname(b).toLowerCase()
+
+        if (isVideo(extA) && !isVideo(extB)) {
+          return 1
+        }
+        if (isVideo(extB) && !isVideo(extA)) {
+          return -1
+        }
+        if (extA < extB) {
+          return -1
+        }
+        if (extA > extB) {
+          return 1
+        }
+        return 0
+      })
+    }
+
+    log(`${filesToProcess.length} files to process`)
+    let index = 1
+    for (const entry of filesToProcess) {
+      try {
+        log(`${index}/${filesToProcess.length} - ${entry}`)
+        await callback(entry)
+      } catch (error) {
+        log(chalk.red(`Error while processing file: ${entry}: ${error}`))
+      }
+      index++
+    }
+  } else {
+    await callback(path)
+  }
 }
 
-const EXIF_TAG_DATE_TIME_ORIGINAL = 'EXIF:ExifIFD:DateTimeOriginal'
-const EXIF_TAG_QUICKTIME_CREATE_DATE = 'QuickTime:CreateDate'
-const EXIF_TAG_GOPRO_MODEL = 'QuickTime:GoPro:Model'
-const EXIF_TAG_FILE_MODIFICATION_DATE = 'File:System:FileModifyDate'
+export const EXIF_TAG_DATE_TIME_ORIGINAL = 'EXIF:ExifIFD:DateTimeOriginal'
+export const EXIF_TAG_QUICKTIME_CREATE_DATE = 'QuickTime:CreateDate'
+export const EXIF_TAG_GOPRO_MODEL = 'QuickTime:GoPro:Model'
+export const EXIF_TAG_FILE_MODIFICATION_DATE = 'File:System:FileModifyDate'
 
 /**
  * Find the shooting date from the exif metadata provided

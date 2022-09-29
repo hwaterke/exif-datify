@@ -1,8 +1,5 @@
 import {Command, Flags} from '@oclif/core'
-import * as fs from 'node:fs'
-import * as nodePath from 'node:path'
-import {isDirectory} from '../utils'
-import * as chalk from 'chalk'
+import {forEachFile} from '../utils'
 import {DatifyService} from '../DatifyService'
 
 export default class ExifDatify extends Command {
@@ -44,6 +41,10 @@ export default class ExifDatify extends Command {
         'rename .srt files with the same date as the video they share their name with.',
       default: false,
     }),
+    livePhotoInfix: Flags.string({
+      description:
+        'adds an infix to the videos of a live photo (after the date prefix and before the original filename)',
+    }),
   }
 
   static args = [
@@ -67,35 +68,17 @@ export default class ExifDatify extends Command {
       timeZone: flags.zone,
       fileTimeFallback: flags.time,
       srt: flags.srt,
+      livePhotoInfix:
+        flags.livePhotoInfix !== undefined && flags.livePhotoInfix !== ''
+          ? flags.livePhotoInfix
+          : null,
     })
 
-    if (!fs.existsSync(path)) {
-      this.error(`${path} does not exist.`)
-    }
-
-    if (await isDirectory(path)) {
-      const filesToProcess = []
-
-      for await (const d of await fs.promises.opendir(path)) {
-        const entry = nodePath.join(path, d.name)
-        if (!d.isDirectory()) {
-          filesToProcess.push(entry)
-        }
-      }
-
-      this.log(`${filesToProcess.length} files to process`)
-      let index = 1
-      for (const entry of filesToProcess) {
-        try {
-          this.log(`${index}/${filesToProcess.length} - ${entry}`)
-          await service.processFile(entry)
-        } catch (error) {
-          this.log(chalk.red(`Error while processing file: ${entry}: ${error}`))
-        }
-        index++
-      }
-    } else {
-      await service.processFile(path)
-    }
+    await forEachFile({
+      path,
+      callback: (entry) => service.processFile(entry),
+      log: (message) => this.log(message),
+      videosLast: true,
+    })
   }
 }

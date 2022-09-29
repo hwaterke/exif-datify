@@ -53,7 +53,7 @@ DESCRIPTION
   Display help for exif-datify.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.14/src/commands/help.ts)_
 
 ## `exif-datify rename PATH`
 
@@ -62,6 +62,7 @@ rename files with date and time information from Exif data
 ```
 USAGE
   $ exif-datify rename [PATH] [-d] [-p <value>] [-e <value>] [-z <value>] [-b] [-t] [--srt]
+    [--livePhotoInfix <value>]
 
 ARGUMENTS
   PATH  path to file or directory to process
@@ -74,6 +75,8 @@ FLAGS
   -t, --time                fallback to the time of the file when no date and time is found
   -z, --zone=<value>        which IANA time zone to use for the date and time information found in UTC (default is local
                             time) e.g. Europe/Brussels
+  --livePhotoInfix=<value>  adds an infix to the videos of a live photo (after the date prefix and before the original
+                            filename)
   --srt                     rename .srt files with the same date as the video they share their name with.
 
 DESCRIPTION
