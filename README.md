@@ -21,7 +21,7 @@ $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (--version)
-exif-datify/0.0.6 darwin-x64 node-v17.3.0
+exif-datify/0.0.7 darwin-x64 node-v17.3.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
@@ -83,5 +83,5 @@ DESCRIPTION
   rename files with date and time information from Exif data
 ```
 
-_See code: [dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.6/dist/commands/rename.ts)_
+_See code: [dist/commands/rename.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.7/dist/commands/rename.ts)_
 <!-- commandsstop -->
