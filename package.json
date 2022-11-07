@@ -41,10 +41,10 @@
     "@oclif/core": "^1.16.4",
     "@oclif/plugin-help": "^5.1.14",
     "chalk": "^4.1.2",
-    "luxon": "^3.0.4"
+    "luxon": "^3.1.0"
   },
   "devDependencies": {
-    "@types/luxon": "^3.0.1",
+    "@types/luxon": "^3.1.0",
     "@types/node": "^16",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
