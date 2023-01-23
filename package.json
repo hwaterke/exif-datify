@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@oclif/core": "^1.16.4",
-    "@oclif/plugin-help": "^5.1.14",
+    "@oclif/plugin-help": "^5.2.0",
     "chalk": "^4.1.2",
     "luxon": "^3.0.4"
   },
