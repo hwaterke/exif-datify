@@ -46,7 +46,7 @@
   "devDependencies": {
     "@types/luxon": "^3.0.1",
     "@types/node": "^16",
-    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^7",
     "eslint-config-oclif": "^4",
