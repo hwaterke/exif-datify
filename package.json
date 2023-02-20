@@ -53,7 +53,7 @@
     "eslint-config-oclif-typescript": "^1.0.3",
     "eslint-config-prettier": "^8.5.0",
     "globby": "^11",
-    "oclif": "^3.2.9",
+    "oclif": "^3.6.5",
     "prettier": "^2.7.1",
     "shx": "^0.3.3",
     "ts-node": "^10.9.1",
