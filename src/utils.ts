@@ -3,7 +3,7 @@ import {DateTime} from 'luxon'
 import nodePath from 'node:path'
 import chalk from 'chalk'
 
-export const TZ_OFFSET_REGEX = /[+-]\d{2}:\d{2}/
+export const TZ_OFFSET_REGEX = /^[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_WITH_TZ_REGEX =
   /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/
