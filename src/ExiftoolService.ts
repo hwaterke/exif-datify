@@ -33,14 +33,18 @@ export class ExiftoolService {
    */
   async extractTimeExifMetadata(
     path: string
-  ): Promise<Record<string, DateTime>> {
+  ): Promise<Record<string, string | number>> {
     await ensureFile(path)
-
     const rawResult = await this.exiftool(
       `-Time:All -api QuickTimeUTC -G0:1 -json "${path}"`
     )
+    return JSON.parse(rawResult)[0]
+  }
 
-    const rawData = JSON.parse(rawResult)[0]
+  async extractAndConvertTimeExifMetadata(
+    path: string
+  ): Promise<Record<string, DateTime>> {
+    const rawData = await this.extractTimeExifMetadata(path)
 
     const ignoredKeys = new Set([
       'SourceFile',
@@ -93,7 +97,7 @@ export class ExiftoolService {
     await this.exiftool(
       `${
         options.override ? '-overwrite_original' : ''
-      } -api QuickTimeUTC -quicktime:CreationDate="${time}" "${path}"`
+      } -P -api QuickTimeUTC -quicktime:CreationDate="${time}" "${path}"`
     )
   }
 
@@ -144,7 +148,7 @@ export class ExiftoolService {
     await this.exiftool(
       `${
         options.override ? '-overwrite_original' : ''
-      }  -OffsetTime="${offset}" -OffsetTimeOriginal="${offset}" -OffsetTimeDigitized="${offset}" "${path}"`
+      } -OffsetTime="${offset}" -OffsetTimeOriginal="${offset}" -OffsetTimeDigitized="${offset}" "${path}"`
     )
   }
 
