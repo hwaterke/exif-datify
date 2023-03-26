@@ -1,4 +1,4 @@
-import {Command, Flags} from '@oclif/core'
+import {Args, Command, Flags} from '@oclif/core'
 import {forEachFile} from '../utils'
 import {DatifyService} from '../DatifyService'
 
@@ -47,13 +47,13 @@ export default class ExifDatify extends Command {
     }),
   }
 
-  static args = [
-    {
+  static args = {
+    path: Args.string({
       name: 'path',
       description: 'path to file or directory to process',
       required: true,
-    },
-  ]
+    }),
+  }
 
   async run() {
     const {
