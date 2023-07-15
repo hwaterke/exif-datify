@@ -23,7 +23,7 @@ $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (--version)
-exif-datify/0.0.8 darwin-arm64 node-v19.7.0
+exif-datify/0.0.8 darwin-arm64 node-v16.20.0
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
@@ -36,8 +36,30 @@ USAGE
 
 <!-- commands -->
 
+- [`exif-datify dji-shift PATH`](#exif-datify-dji-shift-path)
 - [`exif-datify help [COMMANDS]`](#exif-datify-help-commands)
 - [`exif-datify rename PATH`](#exif-datify-rename-path)
+
+## `exif-datify dji-shift PATH`
+
+shifts the time of all files in a directory by one/two hour
+
+```
+USAGE
+  $ exif-datify dji-shift PATH [-d]
+
+ARGUMENTS
+  PATH  path to file or directory to process
+
+FLAGS
+  -d, --dryRun  dry run
+
+DESCRIPTION
+  shifts the time of all files in a directory by one/two hour
+```
+
+_See code:
+[dist/commands/dji-shift.ts](https://github.com/hwaterke/exif-datify/blob/v0.0.8/dist/commands/dji-shift.ts)_
 
 ## `exif-datify help [COMMANDS]`
 
@@ -58,7 +80,7 @@ DESCRIPTION
 ```
 
 _See code:
-[@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.8/src/commands/help.ts)_
+[@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.13/src/commands/help.ts)_
 
 ## `exif-datify rename PATH`
 
