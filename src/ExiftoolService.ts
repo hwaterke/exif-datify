@@ -103,13 +103,14 @@ export class ExiftoolService {
 
   /**
    * Sets all the times to the provided time.
-   * Also changes the file attributes to be in sync.
+   * Can also change the file attributes to be in sync.
    */
   async setAllTime(
     path: string,
     time: string,
     options: {
       override: boolean
+      file: boolean
     }
   ) {
     await ensureFile(path)
@@ -123,7 +124,11 @@ export class ExiftoolService {
     await this.exiftool(
       `${
         options.override ? '-overwrite_original' : ''
-      } -api QuickTimeUTC -wm w -time:all="${time}" -FileCreateDate="${time}" -FileModifyDate="${time}" "${path}"`
+      } -api QuickTimeUTC -wm w -time:all="${time}" ${
+        options.file
+          ? `-FileCreateDate="${time}" -FileModifyDate="${time}"`
+          : '-P'
+      } "${path}"`
     )
   }
 
