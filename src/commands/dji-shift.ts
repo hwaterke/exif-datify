@@ -1,13 +1,9 @@
 import {Args, Command, Flags} from '@oclif/core'
-import {
-  EXIF_DATE_TIME_FORMAT_WITH_TZ,
-  EXIF_TAG_FILE_MODIFICATION_DATE,
-  EXIF_TAG_QUICKTIME_CREATE_DATE,
-  forEachFile,
-} from '../utils'
+import {EXIF_DATE_TIME_FORMAT_WITH_TZ, forEachFile} from '../utils'
 import nodePath from 'node:path'
 import {ExiftoolService} from '../ExiftoolService'
 import {DateTime} from 'luxon'
+import {EXIF_TAGS} from '../types/exif'
 
 /**
  * Fixes time of all files in a directory shifted by one or two hours.
@@ -52,11 +48,14 @@ export default class DjiShiftCommand extends Command {
         }
 
         const metadata = await exifService.extractTimeExifMetadata(entry)
-        const fileTime = metadata[EXIF_TAG_FILE_MODIFICATION_DATE] as string
-        const quicktimeTime = metadata[EXIF_TAG_QUICKTIME_CREATE_DATE] as string
+        const fileTime = metadata[EXIF_TAGS.FILE_MODIFICATION_DATE]
+        const quicktimeTime = metadata[EXIF_TAGS.QUICKTIME_CREATE_DATE]
 
-        if (quicktimeTime === undefined || quicktimeTime === null) {
+        if (quicktimeTime === undefined) {
           throw new Error('No quicktime create date')
+        }
+        if (fileTime === undefined) {
+          throw new Error('No file modification date')
         }
 
         const luxonFileTime = DateTime.fromFormat(

@@ -1,15 +1,11 @@
-import {
-  ensureFile,
-  EXIF_APPLE_LIVE_PHOTO_UUID_PHOTO,
-  EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO,
-  extractDateTimeFromExif,
-} from './utils'
+import {ensureFile, extractDateTimeFromExif} from './utils'
 import {DateTime} from 'luxon'
 import * as nodePath from 'node:path'
 import chalk from 'chalk'
 import {constants} from 'node:fs'
 import {access, opendir, rename} from 'node:fs/promises'
 import {ExiftoolService} from './ExiftoolService'
+import {EXIF_TAGS} from './types/exif'
 
 export type DatifyConfig = {
   prefix: string
@@ -30,8 +26,9 @@ export class DatifyService {
   async processFile(path: string) {
     const metadata = await this.exiftoolService.extractExifMetadata(path)
 
-    const livePhotoWhen = metadata[EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO]
-      ? this.liveVideoCache[metadata[EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO]]
+    const livePhotoTargetUuid = metadata[EXIF_TAGS.LIVE_PHOTO_UUID_VIDEO]
+    const livePhotoWhen = livePhotoTargetUuid
+      ? this.liveVideoCache[livePhotoTargetUuid]
       : null
 
     const when =
@@ -43,25 +40,22 @@ export class DatifyService {
       })
 
     // If it is an Apple photo. Store the time of the photo to be reused when prefixing the related live video.
-    if (metadata[EXIF_APPLE_LIVE_PHOTO_UUID_PHOTO]) {
-      this.liveVideoCache[metadata[EXIF_APPLE_LIVE_PHOTO_UUID_PHOTO]] = when
+    const livePhotoUuid = metadata[EXIF_TAGS.LIVE_PHOTO_UUID_PHOTO]
+    if (livePhotoUuid) {
+      this.liveVideoCache[livePhotoUuid] = when
     }
 
     if (when !== null) {
       await this.prefixFileWithDate(
         path,
         when,
-        metadata[EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO]
-          ? this.config.livePhotoInfix
-          : null
+        livePhotoTargetUuid ? this.config.livePhotoInfix : null
       )
       if (this.config.srt) {
         await this.renameSrtFile(
           path,
           when,
-          metadata[EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO]
-            ? this.config.livePhotoInfix
-            : null
+          livePhotoTargetUuid ? this.config.livePhotoInfix : null
         )
       }
     }

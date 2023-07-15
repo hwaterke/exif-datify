@@ -9,6 +9,7 @@ import {
   TZ_OFFSET_REGEX,
 } from './utils'
 import {DateTime} from 'luxon'
+import {ExiftoolMetadata} from './types/exif'
 
 const exec = promisify(callbackExec)
 
@@ -22,7 +23,7 @@ export class ExiftoolService {
   /**
    * Returns the exif metadata stored on the file provided
    */
-  async extractExifMetadata(path: string): Promise<Record<string, string>> {
+  async extractExifMetadata(path: string): Promise<ExiftoolMetadata> {
     await ensureFile(path)
     const rawResult = await this.exiftool(`-G0:1 -json "${path}"`)
     return JSON.parse(rawResult)[0]
@@ -31,9 +32,7 @@ export class ExiftoolService {
   /**
    * Returns the time related exif metadata stored on the file provided
    */
-  async extractTimeExifMetadata(
-    path: string
-  ): Promise<Record<string, string | number>> {
+  async extractTimeExifMetadata(path: string): Promise<ExiftoolMetadata> {
     await ensureFile(path)
     const rawResult = await this.exiftool(
       `-Time:All -api QuickTimeUTC -G0:1 -json "${path}"`

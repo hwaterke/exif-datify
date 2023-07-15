@@ -2,6 +2,7 @@ import fs, {constants, promises as FS} from 'node:fs'
 import {DateTime} from 'luxon'
 import nodePath from 'node:path'
 import chalk from 'chalk'
+import {EXIF_TAGS, ExiftoolMetadata} from './types/exif'
 
 export const TZ_OFFSET_REGEX = /^[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
@@ -10,10 +11,6 @@ export const EXIF_DATE_TIME_WITH_TZ_REGEX =
 
 export const EXIF_DATE_TIME_FORMAT = 'yyyy:MM:dd HH:mm:ss'
 export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyy:MM:dd HH:mm:ssZZ'
-export const EXIF_APPLE_LIVE_PHOTO_UUID_PHOTO =
-  'MakerNotes:Apple:MediaGroupUUID'
-export const EXIF_APPLE_LIVE_PHOTO_UUID_VIDEO =
-  'QuickTime:Keys:ContentIdentifier'
 
 /**
  * Returns true if the provided path is a directory
@@ -109,11 +106,6 @@ export const forEachFile = async ({
   }
 }
 
-export const EXIF_TAG_DATE_TIME_ORIGINAL = 'EXIF:ExifIFD:DateTimeOriginal'
-export const EXIF_TAG_QUICKTIME_CREATE_DATE = 'QuickTime:CreateDate'
-export const EXIF_TAG_GOPRO_MODEL = 'QuickTime:GoPro:Model'
-export const EXIF_TAG_FILE_MODIFICATION_DATE = 'File:System:FileModifyDate'
-
 /**
  * Find the shooting date from the exif metadata provided
  */
@@ -122,18 +114,15 @@ export const extractDateTimeFromExif = ({
   timeZone,
   fileTimeFallback,
 }: {
-  metadata: Record<string, string>
+  metadata: ExiftoolMetadata
   timeZone?: string
   fileTimeFallback: boolean
 }): DateTime | null => {
   // DateTimeOriginal is the ideal tag to extract from.
   // It is the local date where the media was taken (in terms of TZ)
-  if (metadata[EXIF_TAG_DATE_TIME_ORIGINAL]) {
-    const date = DateTime.fromFormat(
-      metadata[EXIF_TAG_DATE_TIME_ORIGINAL],
-      EXIF_DATE_TIME_FORMAT
-    )
-
+  const dateTimeOriginal = metadata[EXIF_TAGS.DATE_TIME_ORIGINAL]
+  if (dateTimeOriginal) {
+    const date = DateTime.fromFormat(dateTimeOriginal, EXIF_DATE_TIME_FORMAT)
     if (date.isValid) {
       return date
     }
@@ -141,22 +130,18 @@ export const extractDateTimeFromExif = ({
 
   // CreateDate is not as good because it is stored in UTC (per specification).
   // Some companies still store local date time despite the spec e.g. GoPro
-  if (metadata[EXIF_TAG_QUICKTIME_CREATE_DATE]) {
-    if (metadata[EXIF_TAG_GOPRO_MODEL]) {
-      const date = DateTime.fromFormat(
-        metadata[EXIF_TAG_QUICKTIME_CREATE_DATE],
-        EXIF_DATE_TIME_FORMAT
-      )
+  const createDate = metadata[EXIF_TAGS.QUICKTIME_CREATE_DATE]
+  if (createDate) {
+    if (metadata[EXIF_TAGS.GOPRO_MODEL]) {
+      const date = DateTime.fromFormat(createDate, EXIF_DATE_TIME_FORMAT)
       if (date.isValid) {
         return date
       }
     } else {
       // Assuming UTC
-      const date = DateTime.fromFormat(
-        metadata[EXIF_TAG_QUICKTIME_CREATE_DATE],
-        EXIF_DATE_TIME_FORMAT,
-        {zone: 'utc'}
-      )
+      const date = DateTime.fromFormat(createDate, EXIF_DATE_TIME_FORMAT, {
+        zone: 'utc',
+      })
 
       if (date.isValid) {
         return timeZone ? date.setZone(timeZone) : date.toLocal()
@@ -165,13 +150,16 @@ export const extractDateTimeFromExif = ({
   }
 
   if (fileTimeFallback) {
-    const date = DateTime.fromFormat(
-      metadata[EXIF_TAG_FILE_MODIFICATION_DATE],
-      EXIF_DATE_TIME_FORMAT_WITH_TZ
-    )
+    const fileModifyDate = metadata[EXIF_TAGS.FILE_MODIFICATION_DATE]
+    if (fileModifyDate) {
+      const date = DateTime.fromFormat(
+        fileModifyDate,
+        EXIF_DATE_TIME_FORMAT_WITH_TZ
+      )
 
-    if (date.isValid) {
-      return date
+      if (date.isValid) {
+        return date
+      }
     }
   }
 
