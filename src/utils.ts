@@ -128,6 +128,18 @@ export const extractDateTimeFromExif = ({
     }
   }
 
+  // Creation date is the ideal tag for videos as it contains the timezone offset.
+  const creationDate = metadata[EXIF_TAGS.QUICKTIME_CREATION_DATE]
+  if (creationDate) {
+    const date = DateTime.fromFormat(
+      creationDate,
+      EXIF_DATE_TIME_FORMAT_WITH_TZ
+    )
+    if (date.isValid) {
+      return date
+    }
+  }
+
   // CreateDate is not as good because it is stored in UTC (per specification).
   // Some companies still store local date time despite the spec e.g. GoPro
   const createDate = metadata[EXIF_TAGS.QUICKTIME_CREATE_DATE]
