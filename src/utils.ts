@@ -3,6 +3,7 @@ import {DateTime} from 'luxon'
 import nodePath from 'node:path'
 import chalk from 'chalk'
 import {EXIF_TAGS, ExiftoolMetadata} from './types/exif'
+import {opendir, stat, readdir} from 'node:fs/promises'
 
 export const TZ_OFFSET_REGEX = /^[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
@@ -40,16 +41,80 @@ export const ensureFile = async (path: string): Promise<void> => {
   await FS.access(path, constants.F_OK)
 }
 
+type WalkCallback = (path: string) => Promise<{stop: boolean}>
+
+export const walkDirInOrder = async (
+  path: string,
+  callback: (path: string) => Promise<void>
+) => {
+  // Get the files as an array
+  const files = await readdir(path)
+
+  // Sort files in alphabetical order
+  files.sort()
+
+  // Iterate over the files
+  for (const file of files) {
+    // Get the absolute path of the file
+    const filePath = nodePath.join(path, file)
+
+    // Stat the file to see if we have a file or dir
+    const fileStat = await stat(filePath)
+
+    if (fileStat.isFile()) {
+      await callback(filePath)
+    } else if (fileStat.isDirectory()) {
+      await walkDirInOrder(filePath, callback) // Dive into the directory
+    }
+  }
+}
+
+export const walkDir = async (
+  path: string,
+  callback: WalkCallback
+): Promise<void> => {
+  let shouldStop = false
+
+  const recursiveWalk = async (directoryPath: string) => {
+    const dir = await opendir(directoryPath)
+    for await (const dirent of dir) {
+      const filepath = nodePath.join(directoryPath, dirent.name)
+
+      if (shouldStop) {
+        return
+      }
+
+      if (dirent.isDirectory() && !dirent.isSymbolicLink()) {
+        await recursiveWalk(filepath)
+      } else if (dirent.isFile()) {
+        shouldStop = (await callback(filepath)).stop
+      }
+    }
+  }
+
+  await recursiveWalk(path)
+}
+
+export const walkDirOrFile = async (
+  path: string,
+  callback: WalkCallback
+): Promise<void> => {
+  const stats = await stat(path)
+  await (stats.isDirectory() ? walkDir(path, callback) : callback(path))
+}
+
 export const forEachFile = async ({
   path,
   log,
   callback,
   videosLast,
+  recursive,
 }: {
   path: string
   callback: (file: string) => Promise<void>
   log: (message: string) => void
   videosLast: boolean
+  recursive: boolean
 }) => {
   if (!fs.existsSync(path)) {
     throw new Error(`${path} does not exist.`)
@@ -58,10 +123,17 @@ export const forEachFile = async ({
   if (await isDirectory(path)) {
     const filesToProcess = []
 
-    for await (const d of await fs.promises.opendir(path)) {
-      const entry = nodePath.join(path, d.name)
-      if (!d.isDirectory()) {
+    if (recursive) {
+      await walkDir(path, async (entry) => {
         filesToProcess.push(entry)
+        return {stop: false}
+      })
+    } else {
+      for await (const d of await fs.promises.opendir(path)) {
+        const entry = nodePath.join(path, d.name)
+        if (!d.isDirectory()) {
+          filesToProcess.push(entry)
+        }
       }
     }
 

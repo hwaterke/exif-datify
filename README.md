@@ -23,7 +23,7 @@ $ npm install -g exif-datify
 $ exif-datify COMMAND
 running command...
 $ exif-datify (--version)
-exif-datify/0.0.9 darwin-arm64 node-v16.20.0
+exif-datify/0.0.9 darwin-arm64 node-v18.17.1
 $ exif-datify --help [COMMAND]
 USAGE
   $ exif-datify COMMAND
@@ -89,7 +89,7 @@ rename files with date and time information from Exif data
 ```
 USAGE
   $ exif-datify rename PATH [-d] [-p <value>] [-e <value>] [-z <value>] [-b] [-t] [--srt] [--livePhotoInfix
-    <value>]
+    <value>] [-r]
 
 ARGUMENTS
   PATH  path to file or directory to process
@@ -99,6 +99,7 @@ FLAGS
   -d, --dryRun              show how files would be renamed without doing it
   -e, --extensions=<value>  which file extensions to process (comma separated) e.g. (mov,mp4,jpg)
   -p, --prefix=<value>      [default: yyyy-MM-dd_HH-mm-ss_] Format used for the prefix, see luxon documentation
+  -r, --recursive           process directories recursively
   -t, --time                fallback to the time of the file when no date and time is found
   -z, --zone=<value>        which IANA time zone to use for the date and time information found in UTC (default is local
                             time) e.g. Europe/Brussels

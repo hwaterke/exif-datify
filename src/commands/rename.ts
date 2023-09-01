@@ -45,6 +45,11 @@ export default class ExifDatify extends Command {
       description:
         'adds an infix to the videos of a live photo (after the date prefix and before the original filename)',
     }),
+    recursive: Flags.boolean({
+      char: 'r',
+      description: 'process directories recursively',
+      default: false,
+    }),
   }
 
   static args = {
@@ -79,6 +84,7 @@ export default class ExifDatify extends Command {
       callback: (entry) => service.processFile(entry),
       log: (message) => this.log(message),
       videosLast: true,
+      recursive: flags.recursive,
     })
   }
 }

@@ -39,6 +39,7 @@ export default class DjiShiftCommand extends Command {
 
     await forEachFile({
       path,
+      recursive: false,
       callback: async (entry) => {
         const ext = nodePath.extname(entry).toUpperCase()
 
