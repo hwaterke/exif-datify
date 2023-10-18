@@ -9,9 +9,16 @@ export const TZ_OFFSET_REGEX = /^[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_WITH_TZ_REGEX =
   /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/
+export const EXIF_DATE_TIME_WITH_UTC_REGEX =
+  /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}Z$/
+export const EXIF_DATE_TIME_SUBSEC_WITH_TZ_REGEX =
+  /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}\.\d{2}[+-]\d{2}:\d{2}$/
 
 export const EXIF_DATE_TIME_FORMAT = 'yyyy:MM:dd HH:mm:ss'
 export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyy:MM:dd HH:mm:ssZZ'
+export const EXIF_DATE_TIME_SUBSEC_FORMAT = 'yyyy:MM:dd HH:mm:ss.uu'
+export const EXIF_DATE_TIME_SUBSEC_FORMAT_WITH_TZ = 'yyyy:MM:dd HH:mm:ss.uuZZ'
+export const EXIF_OFFSET_FORMAT = 'ZZ'
 
 /**
  * Returns true if the provided path is a directory
@@ -190,25 +197,20 @@ export const extractDateTimeFromExif = ({
   timeZone?: string
   fileTimeFallback: boolean
 }): DateTime | null => {
-  // DateTimeOriginal is the ideal tag to extract from.
-  // It is the local date where the media was taken (in terms of TZ)
-  const dateTimeOriginal = metadata[EXIF_TAGS.DATE_TIME_ORIGINAL]
-  if (dateTimeOriginal) {
-    const date = DateTime.fromFormat(dateTimeOriginal, EXIF_DATE_TIME_FORMAT)
-    if (date.isValid) {
-      return date
-    }
-  }
-
-  // Creation date is the ideal tag for videos as it contains the timezone offset.
-  const creationDate = metadata[EXIF_TAGS.QUICKTIME_CREATION_DATE]
-  if (creationDate) {
-    const date = DateTime.fromFormat(
-      creationDate,
-      EXIF_DATE_TIME_FORMAT_WITH_TZ
-    )
-    if (date.isValid) {
-      return date
+  const tags = [
+    EXIF_TAGS.SUB_SEC_DATE_TIME_ORIGINAL,
+    // Creation date is the ideal tag for videos as it contains the timezone offset.
+    EXIF_TAGS.QUICKTIME_CREATION_DATE,
+    EXIF_TAGS.DATE_TIME_ORIGINAL,
+    EXIF_TAGS.GPS_DATE_TIME,
+  ]
+  for (const tag of tags) {
+    const value = metadata[tag]
+    if (value) {
+      const parsed = parseDateTime({date: value, fallbackTimeZone: timeZone})
+      if (parsed && parsed.isValid) {
+        return parsed
+      }
     }
   }
 
@@ -217,17 +219,14 @@ export const extractDateTimeFromExif = ({
   const createDate = metadata[EXIF_TAGS.QUICKTIME_CREATE_DATE]
   if (createDate) {
     if (metadata[EXIF_TAGS.GOPRO_MODEL]) {
-      const date = DateTime.fromFormat(createDate, EXIF_DATE_TIME_FORMAT)
-      if (date.isValid) {
+      const date = parseDateTime({date: createDate, fallbackTimeZone: timeZone})
+      if (date && date.isValid) {
         return date
       }
     } else {
       // Assuming UTC
-      const date = DateTime.fromFormat(createDate, EXIF_DATE_TIME_FORMAT, {
-        zone: 'utc',
-      })
-
-      if (date.isValid) {
+      const date = parseDateTime({date: createDate, fallbackTimeZone: 'utc'})
+      if (date && date.isValid) {
         return timeZone ? date.setZone(timeZone) : date.toLocal()
       }
     }
@@ -247,5 +246,36 @@ export const extractDateTimeFromExif = ({
     }
   }
 
+  return null
+}
+
+const parseDateTime = ({
+  date,
+  fallbackTimeZone,
+}: {
+  date: string
+  fallbackTimeZone?: string
+}): DateTime | null => {
+  if (EXIF_DATE_TIME_SUBSEC_WITH_TZ_REGEX.test(date)) {
+    return DateTime.fromFormat(date, EXIF_DATE_TIME_SUBSEC_FORMAT_WITH_TZ, {
+      setZone: true,
+    })
+  }
+  if (EXIF_DATE_TIME_WITH_TZ_REGEX.test(date)) {
+    return DateTime.fromFormat(date, EXIF_DATE_TIME_FORMAT_WITH_TZ, {
+      setZone: true,
+    })
+  }
+  if (EXIF_DATE_TIME_WITH_UTC_REGEX.test(date)) {
+    // Remove Z at the end of the string
+    return DateTime.fromFormat(date.slice(0, -1), EXIF_DATE_TIME_FORMAT, {
+      zone: 'utc',
+    })
+  }
+  if (EXIF_DATE_TIME_REGEX.test(date)) {
+    return DateTime.fromFormat(date, EXIF_DATE_TIME_FORMAT, {
+      zone: fallbackTimeZone,
+    })
+  }
   return null
 }
