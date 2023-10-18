@@ -7,6 +7,7 @@
     "padding-line-between-statements": "off",
     "unicorn/import-style": "off",
     "no-useless-constructor": "off",
-    "unicorn/filename-case": "off"
+    "unicorn/filename-case": "off",
+    "no-return-await": "off"
   }
 }
