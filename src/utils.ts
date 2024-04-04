@@ -11,6 +11,8 @@ export const EXIF_DATE_TIME_WITH_TZ_REGEX =
   /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_WITH_UTC_REGEX =
   /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}Z$/
+export const EXIF_DATE_TIME_SUBSEC_REGEX =
+  /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}\.\d{2}$/
 export const EXIF_DATE_TIME_SUBSEC_WITH_TZ_REGEX =
   /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}\.\d{2}[+-]\d{2}:\d{2}$/
 
@@ -259,6 +261,11 @@ const parseDateTime = ({
   if (EXIF_DATE_TIME_SUBSEC_WITH_TZ_REGEX.test(date)) {
     return DateTime.fromFormat(date, EXIF_DATE_TIME_SUBSEC_FORMAT_WITH_TZ, {
       setZone: true,
+    })
+  }
+  if (EXIF_DATE_TIME_SUBSEC_REGEX.test(date)) {
+    return DateTime.fromFormat(date, EXIF_DATE_TIME_SUBSEC_FORMAT, {
+      zone: fallbackTimeZone,
     })
   }
   if (EXIF_DATE_TIME_WITH_TZ_REGEX.test(date)) {
