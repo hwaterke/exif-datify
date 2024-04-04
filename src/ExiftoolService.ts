@@ -1,16 +1,16 @@
 import {promisify} from 'node:util'
 import {exec as callbackExec} from 'node:child_process'
 import {
-  ensureFile,
   EXIF_DATE_TIME_FORMAT,
   EXIF_DATE_TIME_FORMAT_WITH_TZ,
   EXIF_DATE_TIME_REGEX,
   EXIF_DATE_TIME_SUBSEC_WITH_TZ_REGEX,
   EXIF_DATE_TIME_WITH_TZ_REGEX,
   TZ_OFFSET_REGEX,
-} from './utils'
+  ensureFile,
+} from './utils.js'
 import {DateTime} from 'luxon'
-import {ExiftoolMetadata} from './types/exif'
+import {ExiftoolMetadata} from './types/exif.js'
 
 const exec = promisify(callbackExec)
 

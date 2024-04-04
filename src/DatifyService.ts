@@ -1,11 +1,11 @@
-import {ensureFile, extractDateTimeFromExif} from './utils'
+import {ensureFile, extractDateTimeFromExif} from './utils.js'
 import {DateTime} from 'luxon'
 import * as nodePath from 'node:path'
 import chalk from 'chalk'
 import {constants} from 'node:fs'
 import {access, opendir, rename} from 'node:fs/promises'
-import {ExiftoolService} from './ExiftoolService'
-import {EXIF_TAGS} from './types/exif'
+import {EXIF_TAGS} from './types/exif.js'
+import {ExiftoolService} from './ExiftoolService.js'
 
 export type DatifyConfig = {
   prefix: string
@@ -34,7 +34,7 @@ export class DatifyService {
     const when =
       livePhotoWhen ??
       extractDateTimeFromExif({
-        metadata: metadata,
+        metadata,
         timeZone: this.config.timeZone,
         fileTimeFallback: this.config.fileTimeFallback,
       })

@@ -1,9 +1,9 @@
-import fs, {constants, promises as FS} from 'node:fs'
+import fs, {promises as FS, constants} from 'node:fs'
 import {DateTime} from 'luxon'
 import nodePath from 'node:path'
 import chalk from 'chalk'
-import {EXIF_TAGS, ExiftoolMetadata} from './types/exif'
-import {opendir, stat, readdir} from 'node:fs/promises'
+import {EXIF_TAGS, ExiftoolMetadata} from './types/exif.js'
+import {opendir, readdir, stat} from 'node:fs/promises'
 
 export const TZ_OFFSET_REGEX = /^[+-]\d{2}:\d{2}$/
 export const EXIF_DATE_TIME_REGEX = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
