@@ -1,11 +1,11 @@
-import {ensureFile, extractDateTimeFromExif} from './utils.js'
+import {ensureFile} from './utils.js'
 import {DateTime} from 'luxon'
 import * as nodePath from 'node:path'
 import chalk from 'chalk'
 import {constants} from 'node:fs'
 import {access, opendir, rename} from 'node:fs/promises'
 import {EXIF_TAGS} from './types/exif.js'
-import {ExiftoolService} from './ExiftoolService.js'
+import {ExiftoolService} from '@hwaterke/media-probe'
 
 export type DatifyConfig = {
   prefix: string
@@ -31,13 +31,15 @@ export class DatifyService {
       ? this.liveVideoCache[livePhotoTargetUuid]
       : null
 
+    const isoDateTimeFromExif = this.exiftoolService.extractDateTimeFromExif({
+      metadata,
+      timeZone: this.config.timeZone,
+      fileTimeFallback: this.config.fileTimeFallback,
+    })
+
     const when =
       livePhotoWhen ??
-      extractDateTimeFromExif({
-        metadata,
-        timeZone: this.config.timeZone,
-        fileTimeFallback: this.config.fileTimeFallback,
-      })
+      (isoDateTimeFromExif ? DateTime.fromISO(isoDateTimeFromExif) : null)
 
     // If it is an Apple photo. Store the time of the photo to be reused when prefixing the related live video.
     const livePhotoUuid = metadata[EXIF_TAGS.LIVE_PHOTO_UUID_PHOTO]
