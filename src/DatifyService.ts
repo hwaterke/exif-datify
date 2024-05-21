@@ -4,7 +4,6 @@ import * as nodePath from 'node:path'
 import chalk from 'chalk'
 import {constants} from 'node:fs'
 import {access, opendir, rename} from 'node:fs/promises'
-import {EXIF_TAGS} from './types/exif.js'
 import {ExiftoolService} from '@hwaterke/media-probe'
 
 export type DatifyConfig = {
@@ -26,7 +25,9 @@ export class DatifyService {
   async processFile(path: string) {
     const metadata = await this.exiftoolService.extractExifMetadata(path)
 
-    const livePhotoTargetUuid = metadata[EXIF_TAGS.LIVE_PHOTO_UUID_VIDEO]
+    const livePhotoTargetUuid =
+      this.exiftoolService.extractLivePhotoTargetUuidFromExif({metadata})
+
     const livePhotoWhen = livePhotoTargetUuid
       ? this.liveVideoCache[livePhotoTargetUuid]
       : null
@@ -39,10 +40,13 @@ export class DatifyService {
 
     const when =
       livePhotoWhen ??
-      (isoDateTimeFromExif ? DateTime.fromISO(isoDateTimeFromExif) : null)
+      (isoDateTimeFromExif?.iso
+        ? DateTime.fromISO(isoDateTimeFromExif.iso)
+        : null)
 
     // If it is an Apple photo. Store the time of the photo to be reused when prefixing the related live video.
-    const livePhotoUuid = metadata[EXIF_TAGS.LIVE_PHOTO_UUID_PHOTO]
+    const livePhotoUuid =
+      this.exiftoolService.extractLivePhotoSourceUuidFromExif({metadata})
     if (livePhotoUuid) {
       this.liveVideoCache[livePhotoUuid] = when
     }
