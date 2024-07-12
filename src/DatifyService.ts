@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import {constants} from 'node:fs'
 import {access, opendir, rename} from 'node:fs/promises'
 import {ExiftoolService} from '@hwaterke/media-probe'
+import {Logger} from './Logger.js'
 
 export type DatifyConfig = {
   prefix: string
@@ -17,7 +18,7 @@ export type DatifyConfig = {
 }
 
 export class DatifyService {
-  exiftoolService = new ExiftoolService({debug: true})
+  exiftoolService = new ExiftoolService({logger: Logger})
   liveVideoCache: Record<string, DateTime | null> = {}
 
   constructor(private config: DatifyConfig) {}
@@ -41,7 +42,9 @@ export class DatifyService {
     const when =
       livePhotoWhen ??
       (isoDateTimeFromExif?.iso
-        ? DateTime.fromISO(isoDateTimeFromExif.iso)
+        ? DateTime.fromISO(isoDateTimeFromExif.iso, {
+            setZone: true,
+          })
         : null)
 
     // If it is an Apple photo. Store the time of the photo to be reused when prefixing the related live video.
