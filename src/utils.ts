@@ -2,6 +2,8 @@ import fs, {promises as FS, constants} from 'node:fs'
 import nodePath from 'node:path'
 import chalk from 'chalk'
 import {opendir, readdir, stat} from 'node:fs/promises'
+import {ExiftoolService} from '@hwaterke/media-probe'
+import {DateTime} from 'luxon'
 
 export const EXIF_DATE_TIME_FORMAT = 'yyyy:MM:dd HH:mm:ss'
 export const EXIF_DATE_TIME_FORMAT_WITH_TZ = 'yyyy:MM:dd HH:mm:ssZZ'
@@ -171,4 +173,50 @@ export const forEachFile = async ({
   } else {
     await callback(path)
   }
+}
+
+export const updateTime = async ({
+  path,
+  ext,
+  time,
+  exifService,
+}: {
+  path: string
+  ext: string
+  time: DateTime
+  exifService: ExiftoolService
+}) => {
+  if (['.MOV', '.MP4'].includes(ext)) {
+    const timeString = time.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)
+    await exifService.setQuickTimeCreationDate(path, timeString, {
+      override: true,
+      ignoreMinorErrors: true,
+    })
+    await exifService.setAllTime(path, timeString, {
+      override: true,
+      ignoreMinorErrors: true,
+      file: false,
+    })
+    return
+  }
+
+  if (['.DNG', '.JPG', '.NEF'].includes(ext)) {
+    const timeString =
+      time.millisecond === 0
+        ? time.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)
+        : time.toFormat(EXIF_DATE_TIME_SUBSEC_FORMAT_WITH_TZ)
+    const offsetString = time.toFormat(EXIF_OFFSET_FORMAT)
+    await exifService.setTimezoneOffsets(path, offsetString, {
+      ignoreMinorErrors: true,
+      override: true,
+    })
+    await exifService.setAllTime(path, timeString, {
+      override: true,
+      ignoreMinorErrors: true,
+      file: false,
+    })
+    return
+  }
+
+  throw new Error('Unsupported file type')
 }
