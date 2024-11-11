@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@hwaterke/media-probe": "npm:@jsr/hwaterke__media-probe@^0.0.7",
-    "@oclif/core": "^3",
+    "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "chalk": "^5",
     "luxon": "^3"
