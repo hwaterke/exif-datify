@@ -1,12 +1,12 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {ExiftoolService} from '@hwaterke/media-probe'
-import {ensureFile, updateTime} from '../utils.js'
+import {ensureFile, updateTime} from '../lib/utils.js'
 import nodePath from 'node:path'
 import {DateTime} from 'luxon'
-import {Logger} from '../Logger.js'
+import {Logger} from '../lib/Logger.js'
 
 export default class SetDateCommand extends Command {
-  static description = 'sets exact date and time to the file provided'
+  static description = 'Sets exact date and time to the file provided'
 
   static flags = {
     time: Flags.string({

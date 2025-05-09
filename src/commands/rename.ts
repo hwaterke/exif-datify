@@ -1,6 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
-import {DatifyService} from '../DatifyService.js'
-import {forEachFile} from '../utils.js'
+import {DatifyService} from '../lib/DatifyService.js'
+import {forEachFile} from '../lib/utils.js'
 
 export default class ExifDatify extends Command {
   static description =

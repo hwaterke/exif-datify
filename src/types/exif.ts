@@ -1,15 +1,4 @@
-export const EXIF_TAGS = {
-  FILE_MODIFICATION_DATE: 'File:System:FileModifyDate',
-  DATE_TIME_ORIGINAL: 'EXIF:ExifIFD:DateTimeOriginal',
-  SUB_SEC_TIME: 'EXIF:ExifIFD:SubSecTime',
-  QUICKTIME_CREATE_DATE: 'QuickTime:CreateDate',
-  QUICKTIME_CREATION_DATE: 'QuickTime:Keys:CreationDate',
-  GOPRO_MODEL: 'QuickTime:GoPro:Model',
-  LIVE_PHOTO_UUID_PHOTO: 'MakerNotes:Apple:MediaGroupUUID',
-  LIVE_PHOTO_UUID_VIDEO: 'QuickTime:Keys:ContentIdentifier',
-  SUB_SEC_DATE_TIME_ORIGINAL: 'Composite:SubSecDateTimeOriginal',
-  GPS_DATE_TIME: 'Composite:GPSDateTime',
-} as const
+import {EXIF_TAGS} from '@hwaterke/media-probe'
 
 export type ExiftoolMetadata = {
   [EXIF_TAGS.FILE_MODIFICATION_DATE]?: string

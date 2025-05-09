@@ -39,7 +39,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hwaterke/media-probe": "npm:@jsr/hwaterke__media-probe@^0.0.7",
+    "@hwaterke/media-probe": "npm:@jsr/hwaterke__media-probe@^0.0.10",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "chalk": "^5",

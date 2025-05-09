@@ -114,6 +114,28 @@ export class DatifyService {
     }
   }
 
+  public async removePrefixFromFile(path: string) {
+    const current = nodePath.resolve(path)
+    const pathData = nodePath.parse(path)
+
+    const pattern = /^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_(live-photo-)?/
+
+    const newName = pathData.name.replace(pattern, '')
+
+    if (newName === pathData.name) {
+      return
+    }
+
+    const newPath = nodePath.join(pathData.dir, `${newName}${pathData.ext}`)
+
+    console.log(chalk.blue(current))
+    console.log(chalk.green(newPath))
+
+    if (!this.config.dryRun) {
+      await rename(current, newPath)
+    }
+  }
+
   private async findSrtFiles(originalFile: string): Promise<string[]> {
     const parsedFile = nodePath.parse(originalFile)
     const srt = nodePath.join(parsedFile.dir, `${parsedFile.name}.srt`)

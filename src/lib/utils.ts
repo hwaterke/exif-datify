@@ -200,7 +200,7 @@ export const updateTime = async ({
     return
   }
 
-  if (['.DNG', '.JPG', '.NEF'].includes(ext)) {
+  if (['.DNG', '.JPG', '.NEF', '.PNG'].includes(ext)) {
     const timeString =
       time.millisecond === 0
         ? time.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)

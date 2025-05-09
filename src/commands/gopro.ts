@@ -1,17 +1,11 @@
-import {Args, Command, Flags} from '@oclif/core'
 import {ExiftoolService} from '@hwaterke/media-probe'
-import {
-  EXIF_DATE_TIME_FORMAT,
-  EXIF_DATE_TIME_FORMAT_WITH_TZ,
-  forEachFile,
-} from '../utils.js'
-import nodePath from 'node:path'
-import {EXIF_TAGS} from '../types/exif.js'
-import {DateTime} from 'luxon'
-import {Logger} from '../Logger.js'
+import {Args, Command, Flags} from '@oclif/core'
+import {Logger} from '../lib/Logger.js'
+import {processGopro} from '../lib/processGopro.js'
+import {forEachFile} from '../lib/utils.js'
 
 export default class GoProCommand extends Command {
-  static description = 'write proper time for gopro files'
+  static description = 'write proper time for GoPro files'
 
   static flags = {
     dryRun: Flags.boolean({
@@ -44,67 +38,18 @@ export default class GoProCommand extends Command {
 
     await forEachFile({
       path,
-      recursive: false,
+      recursive: true,
       callback: async (entry) => {
-        const ext = nodePath.extname(entry).toUpperCase()
-
-        if (!['.MOV', '.MP4'].includes(ext)) {
-          this.log(`Skipping file with ext ${ext}`)
-          return
-        }
-
-        const metadata = await exifService.extractExifMetadata(entry)
-
-        const goProModel = metadata[EXIF_TAGS.GOPRO_MODEL]
-        // Stop if the file is not a GoPro file
-        if (!goProModel) {
-          this.log(`Skipping file - Not a GoPro file`)
-          return
-        }
-
-        // Stop if the file was already fixed. CreationDate is not written by GoPro cameras, we write it when we fix the file
-        const quicktimeCreationDate =
-          metadata[EXIF_TAGS.QUICKTIME_CREATION_DATE]
-        if (quicktimeCreationDate) {
-          this.log(`Skipping file - Already fixed`)
-          return
-        }
-
-        const quicktimeTime = metadata[EXIF_TAGS.QUICKTIME_CREATE_DATE]
-        if (quicktimeTime === undefined) {
-          throw new Error('No quicktime create date')
-        }
-
-        console.log(`Current GoPro Create Date: ${quicktimeTime}`)
-
-        const luxonQuickTimeTime = DateTime.fromFormat(
-          quicktimeTime,
-          EXIF_DATE_TIME_FORMAT,
-          {
-            zone: flags.zone,
-          }
-        )
-
-        const correctTimeString = luxonQuickTimeTime.toFormat(
-          EXIF_DATE_TIME_FORMAT_WITH_TZ
-        )
-
-        console.log(`Corrected GoPro Creation Date: ${correctTimeString}`)
-
-        if (!flags.dryRun) {
-          await exifService.setQuickTimeCreationDate(entry, correctTimeString, {
-            ignoreMinorErrors: true,
-            override: true,
-          })
-
-          await exifService.setAllTime(entry, correctTimeString, {
-            ignoreMinorErrors: true,
-            override: true,
-            file: false,
-          })
-        }
+        await processGopro({
+          path: entry,
+          logger: Logger,
+          metadata: await exifService.extractExifMetadata(entry),
+          zone: flags.zone,
+          dryRun: flags.dryRun,
+          exifService,
+        })
       },
-      log: (message) => this.log(message),
+      log: (message) => Logger.info(message),
       videosLast: false,
     })
   }
