@@ -30,3 +30,9 @@ QuickTime)
 ```shell
 exiftool -overwrite_original -api QuickTimeUTC -wm w -time:all="2022:06:06 17:00:00+02:00" -FileCreateDate= FILE.MP4
 ```
+
+Rotate a video
+
+```shell
+exiftool -overwrite_original -P -Rotation=90 FILE.MP4
+```
