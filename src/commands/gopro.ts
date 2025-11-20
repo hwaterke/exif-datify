@@ -51,6 +51,7 @@ export default class GoProCommand extends Command {
       },
       log: (message) => Logger.info(message),
       videosLast: false,
+      sorted: true,
     })
   }
 }

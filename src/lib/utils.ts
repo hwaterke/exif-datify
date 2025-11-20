@@ -105,12 +105,14 @@ export const forEachFile = async ({
   log,
   callback,
   videosLast,
+  sorted,
   recursive,
 }: {
   path: string
   callback: (file: string) => Promise<void>
   log: (message: string) => void
   videosLast: boolean
+  sorted: boolean
   recursive: boolean
 }) => {
   if (!fs.existsSync(path)) {
@@ -157,6 +159,8 @@ export const forEachFile = async ({
         }
         return 0
       })
+    } else if (sorted) {
+      filesToProcess.sort()
     }
 
     log(`${filesToProcess.length} files to process`)
@@ -180,22 +184,26 @@ export const updateTime = async ({
   ext,
   time,
   exifService,
+  dryRun,
 }: {
   path: string
   ext: string
   time: DateTime
   exifService: ExiftoolService
+  dryRun: boolean
 }) => {
   if (['.MOV', '.MP4'].includes(ext)) {
     const timeString = time.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)
     await exifService.setQuickTimeCreationDate(path, timeString, {
       override: true,
       ignoreMinorErrors: true,
+      dryRun,
     })
     await exifService.setAllTime(path, timeString, {
       override: true,
       ignoreMinorErrors: true,
       file: false,
+      dryRun,
     })
     return
   }
@@ -209,11 +217,13 @@ export const updateTime = async ({
     await exifService.setTimezoneOffsets(path, offsetString, {
       ignoreMinorErrors: true,
       override: true,
+      dryRun,
     })
     await exifService.setAllTime(path, timeString, {
       override: true,
       ignoreMinorErrors: true,
       file: false,
+      dryRun,
     })
     return
   }

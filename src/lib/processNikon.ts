@@ -77,7 +77,7 @@ export async function processNikon({
   const ext = nodePath.extname(path).toUpperCase()
 
   if (!['.JPG', '.NEF'].includes(ext)) {
-    logger.info(`Skipping file with ext ${ext}`)
+    logger.debug(`Skipping file with ext ${ext}`)
     return
   }
 
@@ -85,14 +85,14 @@ export async function processNikon({
 
   // Stop if the file is not a Nikon file
   if (!make || make !== 'NIKON CORPORATION') {
-    logger.info(`Skipping file - Not a Nikon file`)
+    logger.debug(`Skipping file - Not a Nikon file`)
     return
   }
 
   // Stop if the file was already fixed. OffsetTimeOriginal is not written by Nikon cameras, we write it when we fix the file
   const offsetTime = metadata[EXIF_TAGS.EXIF_OFFSET_TIME_ORIGINAL]
   if (offsetTime) {
-    logger.info(`Skipping file - Already fixed`)
+    logger.debug(`Skipping file - Already fixed`)
     return
   }
 
@@ -115,31 +115,30 @@ export async function processNikon({
     setZone: true,
   })
 
-  if (!dryRun) {
-    const timeString =
-      dateTime.millisecond === 0
-        ? dateTime.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)
-        : dateTime.toFormat(EXIF_DATE_TIME_SUBSEC2_FORMAT_WITH_TZ)
+  logger.info(`Adding offset to ${path}`)
+  const timeString =
+    dateTime.millisecond === 0
+      ? dateTime.toFormat(EXIF_DATE_TIME_FORMAT_WITH_TZ)
+      : dateTime.toFormat(EXIF_DATE_TIME_SUBSEC2_FORMAT_WITH_TZ)
 
-    const offsetString = dateTime.toFormat(EXIF_OFFSET_FORMAT)
+  const offsetString = dateTime.toFormat(EXIF_OFFSET_FORMAT)
 
-    await exifService.setTimezoneOffsets(path, offsetString, {
-      ignoreMinorErrors: true,
-      override: true,
+  await exifService.setTimezoneOffsets(path, offsetString, {
+    ignoreMinorErrors: true,
+    override: true,
+    dryRun,
+  })
+
+  if (ext === '.NEF') {
+    // We do this to add the time offset to the XMP CreateDate tag
+    await exifService.exiftool({
+      args: ['-P', `-CreateDate="${timeString}"`],
+      path,
+      options: {
+        override: true,
+        ignoreMinorErrors: true,
+        dryRun,
+      },
     })
-
-    if (ext === '.NEF') {
-      // We do this to add the time offset to the XMP CreateDate tag
-      await exifService.exiftool({
-        args: ['-P', `-CreateDate="${timeString}"`],
-        path,
-        options: {
-          override: true,
-          ignoreMinorErrors: true,
-        },
-      })
-    }
-
-    return
   }
 }

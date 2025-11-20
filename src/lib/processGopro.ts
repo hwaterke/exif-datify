@@ -62,14 +62,13 @@ async function processVideo({
 
   logger.info(`Corrected GoPro Creation Date: ${correctTimeString}`)
 
-  if (!dryRun) {
-    await updateTime({
-      path,
-      ext,
-      time: luxonQuickTimeTime,
-      exifService,
-    })
-  }
+  await updateTime({
+    path,
+    ext,
+    time: luxonQuickTimeTime,
+    exifService,
+    dryRun,
+  })
 }
 
 async function processImage({
@@ -122,14 +121,13 @@ async function processImage({
     setZone: true,
   })
 
-  if (!dryRun) {
-    const offsetString = dateTime.toFormat(EXIF_OFFSET_FORMAT)
+  const offsetString = dateTime.toFormat(EXIF_OFFSET_FORMAT)
 
-    await exifService.setTimezoneOffsets(path, offsetString, {
-      ignoreMinorErrors: true,
-      override: true,
-    })
-  }
+  await exifService.setTimezoneOffsets(path, offsetString, {
+    ignoreMinorErrors: true,
+    override: true,
+    dryRun,
+  })
 }
 
 export async function processGopro({

@@ -51,6 +51,7 @@ export default class NikonCommand extends Command {
       },
       log: (message) => Logger.info(message),
       videosLast: false,
+      sorted: true,
     })
   }
 }

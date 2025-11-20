@@ -84,6 +84,7 @@ export default class ExifDatify extends Command {
       callback: (entry) => service.processFile(entry),
       log: (message) => this.log(message),
       videosLast: true,
+      sorted: false,
       recursive: flags.recursive,
     })
   }

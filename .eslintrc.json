@@ -5,6 +5,7 @@
     "no-constant-condition": "off",
     "no-return-await": "off",
     "no-useless-constructor": "off",
+    "object-shorthand": "off",
     "padding-line-between-statements": "off",
     "perfectionist/sort-classes": "off",
     "perfectionist/sort-imports": "off",

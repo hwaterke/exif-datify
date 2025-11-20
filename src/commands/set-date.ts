@@ -46,6 +46,7 @@ export default class SetDateCommand extends Command {
       ext,
       exifService,
       time: datetime,
+      dryRun: false,
     })
   }
 }
