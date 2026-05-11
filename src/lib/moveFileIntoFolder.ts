@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 
@@ -33,9 +34,6 @@ export async function moveFileIntoFolder(
   destinationFolder: string,
   options: MoveFileOptions
 ): Promise<MoveFileResult> {
-  const source = path.resolve(sourcePath)
-  const destination = path.resolve(destinationFolder)
-
   const sourceStat = await fs.stat(sourcePath)
 
   if (!sourceStat.isFile()) {
@@ -85,11 +83,55 @@ async function moveAcrossDevicesSafe(
   } catch (error) {
     if (isNodeError(error) && error.code === 'EXDEV') {
       await fs.copyFile(sourcePath, destinationPath)
+      await verifyFileCopy(sourcePath, destinationPath)
       await fs.unlink(sourcePath)
       return
     }
 
     throw error
+  }
+}
+
+async function verifyFileCopy(
+  sourcePath: string,
+  destinationPath: string
+): Promise<void> {
+  const [srcStat, dstStat] = await Promise.all([
+    fs.stat(sourcePath),
+    fs.stat(destinationPath),
+  ])
+
+  if (srcStat.size !== dstStat.size) {
+    await fs.unlink(destinationPath)
+    throw new Error(
+      `Cross-device copy verification failed (size mismatch): ${sourcePath} → ${destinationPath}`
+    )
+  }
+
+  const [srcHash, dstHash] = await Promise.all([
+    hashFile(sourcePath),
+    hashFile(destinationPath),
+  ])
+
+  if (srcHash !== dstHash) {
+    await fs.unlink(destinationPath)
+    throw new Error(
+      `Cross-device copy verification failed (hash mismatch): ${sourcePath} → ${destinationPath}`
+    )
+  }
+}
+
+async function hashFile(filePath: string): Promise<string> {
+  const handle = await fs.open(filePath, 'r')
+  const hash = createHash('sha256')
+  try {
+    const stream = handle.createReadStream()
+    for await (const chunk of stream) {
+      hash.update(chunk)
+    }
+    return hash.digest('hex')
+  } finally {
+    await handle.close()
   }
 }
 
