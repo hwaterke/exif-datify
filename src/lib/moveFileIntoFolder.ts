@@ -34,7 +34,11 @@ export async function moveFileIntoFolder(
   destinationFolder: string,
   options: MoveFileOptions
 ): Promise<MoveFileResult> {
-  const sourceStat = await fs.stat(sourcePath)
+  const sourceStat = await fs.lstat(sourcePath)
+
+  if (sourceStat.isSymbolicLink()) {
+    throw new Error(`Source must not be a symlink: ${sourcePath}`)
+  }
 
   if (!sourceStat.isFile()) {
     throw new Error(`Source is not a file: ${sourcePath}`)
