@@ -1,6 +1,10 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {DatifyService} from '../lib/DatifyService.js'
-import {forEachFile} from '../lib/utils.js'
+import {
+  defaultProgressLogger,
+  videosLastComparator,
+  walkFiles,
+} from '@hwaterke/file-utils'
 
 export default class ExifDatify extends Command {
   static description =
@@ -79,13 +83,12 @@ export default class ExifDatify extends Command {
           : null,
     })
 
-    await forEachFile({
+    await walkFiles({
       path,
       callback: (entry) => service.processFile(entry),
-      log: (message) => this.log(message),
-      videosLast: true,
-      sorted: false,
-      recursive: flags.recursive,
+      onFile: defaultProgressLogger((message) => this.log(message)),
+      sort: videosLastComparator,
+      filter: flags.recursive ? undefined : (_, d) => !d.isDirectory(),
     })
   }
 }

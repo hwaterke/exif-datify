@@ -1,10 +1,11 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {EXIF_TAGS, ExiftoolService} from '@hwaterke/media-probe'
-import {forEachFile, moveFileSafely} from '../lib/utils.js'
+import {moveFileSafely} from '../lib/utils.js'
 import {Logger} from '../lib/Logger.js'
 import nodePath from 'node:path'
 import chalk from 'chalk'
 import {sanitizeFilename} from '../lib/sanitizeFilename.js'
+import {defaultProgressLogger, walkFiles} from '@hwaterke/file-utils'
 
 export default class GroupByModel extends Command {
   static description =
@@ -44,7 +45,7 @@ export default class GroupByModel extends Command {
     const exifService = new ExiftoolService({logger: Logger})
     let totalProcessed = 0
 
-    await forEachFile({
+    await walkFiles({
       path,
       callback: async (file) => {
         try {
@@ -83,10 +84,8 @@ export default class GroupByModel extends Command {
           this.log(chalk.red(`Error processing file ${file}: ${error}`))
         }
       },
-      log: (message) => this.log(message),
-      videosLast: false,
-      sorted: false,
-      recursive: flags.recursive,
+      onFile: defaultProgressLogger((message) => this.log(message)),
+      filter: flags.recursive ? undefined : (_, d) => !d.isDirectory(),
     })
 
     this.log(`\n${totalProcessed} files processed`)

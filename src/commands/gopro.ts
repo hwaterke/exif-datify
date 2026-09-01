@@ -2,7 +2,11 @@ import {ExiftoolService} from '@hwaterke/media-probe'
 import {Args, Command, Flags} from '@oclif/core'
 import {Logger} from '../lib/Logger.js'
 import {processGopro} from '../lib/processGopro.js'
-import {forEachFile} from '../lib/utils.js'
+import {
+  compareAsc,
+  defaultProgressLogger,
+  walkFiles,
+} from '@hwaterke/file-utils'
 
 export default class GoProCommand extends Command {
   static description = 'write proper time for GoPro files'
@@ -36,9 +40,8 @@ export default class GoProCommand extends Command {
 
     const exifService = new ExiftoolService({logger: Logger})
 
-    await forEachFile({
+    await walkFiles({
       path,
-      recursive: true,
       callback: async (entry) => {
         await processGopro({
           path: entry,
@@ -49,9 +52,8 @@ export default class GoProCommand extends Command {
           exifService,
         })
       },
-      log: (message) => Logger.info(message),
-      videosLast: false,
-      sorted: true,
+      onFile: defaultProgressLogger((message) => Logger.info(message)),
+      sort: compareAsc,
     })
   }
 }
